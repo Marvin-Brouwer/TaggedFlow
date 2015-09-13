@@ -1,4 +1,4 @@
-# TaggedLibrary-Flow
-Want to know what TaggedLibrary-Flow is?
+# TaggedFlow
+Want to know what TaggedFlow is?
 
-[Check the wiki](https://github.com/Marvin-Brouwer/TaggedLibraryFlow/wiki)
+[Check the wiki](https://github.com/Marvin-Brouwer/TaggedFlow/wiki)
