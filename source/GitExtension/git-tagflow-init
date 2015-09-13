@@ -1,5 +1,5 @@
 #
-# git-flow -- A collection of Git extensions to provide high-level
+# git-tagflow -- A collection of Git extensions to provide high-level
 # repository operations for Vincent Driessen's branching model.
 #
 # Original blog post presenting this model is found at:
@@ -83,7 +83,7 @@ cmd_default() {
 		#    We will create a new master/develop branch for the user
 		# 2. Some branches do already exist
 		#    We will disallow creation of new master/develop branches and
-		#    rather allow to use existing branches for git-flow.
+		#    rather allow to use existing branches for git-tagflow.
 		local default_suggestion
 		local should_check_existence
 		branch_count=$(git_local_branches | wc -l)

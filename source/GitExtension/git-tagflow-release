@@ -1,5 +1,5 @@
 #
-# git-flow -- A collection of Git extensions to provide high-level
+# git-tagflow -- A collection of Git extensions to provide high-level
 # repository operations for Vincent Driessen's branching model.
 #
 # Original blog post presenting this model is found at:
@@ -40,12 +40,14 @@ require_git_repo
 require_gitflow_initialized
 gitflow_load_settings
 VERSION_PREFIX=$(eval "echo `git config --get gitflow.prefix.versiontag`")
-PREFIX=$(git config --get gitflow.prefix.hotfix)
+PREFIX=$(git config --get gitflow.prefix.release)
 
 usage() {
-	echo "usage: git flow hotfix [list] [-v]"
-	echo "       git flow hotfix start [-F] <version> [<base>]"
-	echo "       git flow hotfix finish [-Fsumpk] <version>"
+	echo "usage: git flow release [list] [-v]"
+	echo "       git flow release start [-F] <version>"
+	echo "       git flow release finish [-Fsumpk] <version>"
+	echo "       git flow release publish <name>"
+	echo "       git flow release track <name>"
 }
 
 cmd_default() {
@@ -56,21 +58,22 @@ cmd_list() {
 	DEFINE_boolean verbose false 'verbose (more) output' v
 	parse_args "$@"
 
-	local hotfix_branches
+	local release_branches
 	local current_branch
 	local short_names
-	hotfix_branches=$(echo "$(git_local_branches)" | grep "^$PREFIX")
-	if [ -z "$hotfix_branches" ]; then
-		warn "No hotfix branches exist."
+	release_branches=$(echo "$(git_local_branches)" | grep "^$PREFIX")
+	if [ -z "$release_branches" ]; then
+		warn "No release branches exist."
                 warn ""
-                warn "You can start a new hotfix branch:"
+                warn "You can start a new release branch:"
                 warn ""
-                warn "    git flow hotfix start <version> [<base>]"
+                warn "    git flow release start <name> [<base>]"
                 warn ""
 		exit 0
 	fi
+
 	current_branch=$(git branch --no-color | grep '^\* ' | grep -v 'no branch' | sed 's/^* //g')
-	short_names=$(echo "$hotfix_branches" | sed "s ^$PREFIX  g")
+	short_names=$(echo "$release_branches" | sed "s ^$PREFIX  g")
 
 	# determine column width first
 	local width=0
@@ -84,8 +87,8 @@ cmd_list() {
 	local branch
 	for branch in $short_names; do
 		local fullname=$PREFIX$branch
-		local base=$(git merge-base "$fullname" "$MASTER_BRANCH")
-		local master_sha=$(git rev-parse "$MASTER_BRANCH")
+		local base=$(git merge-base "$fullname" "$DEVELOP_BRANCH")
+		local develop_sha=$(git rev-parse "$DEVELOP_BRANCH")
 		local branch_sha=$(git rev-parse "$fullname")
 		if [ "$fullname" = "$current_branch" ]; then
 			printf "* "
@@ -94,16 +97,10 @@ cmd_list() {
 		fi
 		if flag verbose; then
 			printf "%-${width}s" "$branch"
-			if [ "$branch_sha" = "$master_sha" ]; then
+			if [ "$branch_sha" = "$develop_sha" ]; then
 				printf "(no commits yet)"
 			else
-				local tagname=$(git name-rev --tags --no-undefined --name-only "$base")
-				local nicename
-				if [ "$tagname" != "" ]; then
-					nicename=$tagname
-				else
-					nicename=$(git rev-parse --short "$base")
-				fi
+				local nicename=$(git rev-parse --short "$base")
 				printf "(based on $nicename)"
 			fi
 		else
@@ -136,39 +133,39 @@ require_version_arg() {
 	fi
 }
 
-require_base_is_on_master() {
+require_base_is_on_develop() {
 	if ! git branch --no-color --contains "$BASE" 2>/dev/null \
 			| sed 's/[* ] //g' \
-	  		| grep -q "^$MASTER_BRANCH\$"; then
-		die "fatal: Given base '$BASE' is not a valid commit on '$MASTER_BRANCH'."
+	  		| grep -q "^$DEVELOP_BRANCH\$"; then
+		die "fatal: Given base '$BASE' is not a valid commit on '$DEVELOP_BRANCH'."
 	fi
 }
 
-require_no_existing_hotfix_branches() {
-	local hotfix_branches=$(echo "$(git_local_branches)" | grep "^$PREFIX")
-	local first_branch=$(echo ${hotfix_branches} | head -n1)
+require_no_existing_release_branches() {
+	local release_branches=$(echo "$(git_local_branches)" | grep "^$PREFIX")
+	local first_branch=$(echo ${release_branches} | head -n1)
 	first_branch=${first_branch#$PREFIX}
-	[ -z "$hotfix_branches" ] || \
-		die "There is an existing hotfix branch ($first_branch). Finish that one first."
+	[ -z "$release_branches" ] || \
+		die "There is an existing release branch ($first_branch). Finish that one first."
 }
 
 cmd_start() {
 	DEFINE_boolean fetch false "fetch from $ORIGIN before performing finish" F
 	parse_args "$@"
-	BASE=${2:-$MASTER_BRANCH}
+	BASE=${2:-$DEVELOP_BRANCH}
 	require_version_arg
-	require_base_is_on_master
-	require_no_existing_hotfix_branches
+	require_base_is_on_develop
+	require_no_existing_release_branches
 
 	# sanity checks
 	require_clean_working_tree
 	require_branch_absent "$BRANCH"
 	require_tag_absent "$VERSION_PREFIX$VERSION"
 	if flag fetch; then
-		git fetch -q "$ORIGIN" "$MASTER_BRANCH"
+		git fetch -q "$ORIGIN" "$DEVELOP_BRANCH"
 	fi
-	if has "$ORIGIN/$MASTER_BRANCH" "$(git_remote_branches)"; then
-		require_branches_equal "$MASTER_BRANCH" "$ORIGIN/$MASTER_BRANCH"
+	if has "$ORIGIN/$DEVELOP_BRANCH" "$(git_remote_branches)"; then
+		require_branches_equal "$DEVELOP_BRANCH" "$ORIGIN/$DEVELOP_BRANCH"
 	fi
 
 	# create branch
@@ -181,10 +178,10 @@ cmd_start() {
 	echo
 	echo "Follow-up actions:"
 	echo "- Bump the version number now!"
-	echo "- Start committing your hot fixes"
+	echo "- Start committing last-minute fixes in preparing your release"
 	echo "- When done, run:"
 	echo
-	echo "     git flow hotfix finish '$VERSION'"
+	echo "     git flow release finish '$VERSION'"
 	echo
 }
 
@@ -196,6 +193,7 @@ cmd_finish() {
 	DEFINE_boolean push false "push to $ORIGIN after performing finish" p
 	DEFINE_boolean keep false "keep branch after performing finish" k
 	DEFINE_boolean notag false "don't tag this release" n
+
 	parse_args "$@"
 	require_version_arg
 
@@ -241,7 +239,7 @@ cmd_finish() {
 			flag sign && opts="$opts -s"
 			[ "$FLAGS_signingkey" != "" ] && opts="$opts -u '$FLAGS_signingkey'"
 			[ "$FLAGS_message" != "" ] && opts="$opts -m '$FLAGS_message'"
-			git tag $opts "$VERSION_PREFIX$VERSION" || \
+			git tag $opts "$tagname" || \
 			die "Tagging failed. Please run finish again to retry."
 		fi
 	fi
@@ -262,6 +260,9 @@ cmd_finish() {
 
 	# delete branch
 	if noflag keep; then
+		if [ "$BRANCH" = "$(git_current_branch)" ]; then
+			git checkout "$MASTER_BRANCH"
+		fi
 		git branch -d "$BRANCH"
 	fi
 
@@ -272,25 +273,75 @@ cmd_finish() {
 			die "Could not push to $MASTER_BRANCH from $ORIGIN."
 		if noflag notag; then
 			git push --tags "$ORIGIN" || \
-				die "Could not push tags to $ORIGIN."
+			  die "Could not push tags to $ORIGIN."
 		fi
+		git push "$ORIGIN" :"$BRANCH" || \
+			die "Could not delete the remote $BRANCH in $ORIGIN."
 	fi
 
 	echo
 	echo "Summary of actions:"
 	echo "- Latest objects have been fetched from '$ORIGIN'"
-	echo "- Hotfix branch has been merged into '$MASTER_BRANCH'"
+	echo "- Release branch has been merged into '$MASTER_BRANCH'"
 	if noflag notag; then
-		echo "- The hotfix was tagged '$VERSION_PREFIX$VERSION'"
+		echo "- The release was tagged '$tagname'"
 	fi
-	echo "- Hotfix branch has been back-merged into '$DEVELOP_BRANCH'"
+	echo "- Release branch has been back-merged into '$DEVELOP_BRANCH'"
 	if flag keep; then
-		echo "- Hotfix branch '$BRANCH' is still available"
+		echo "- Release branch '$BRANCH' is still available"
 	else
-		echo "- Hotfix branch '$BRANCH' has been deleted"
+		echo "- Release branch '$BRANCH' has been deleted"
 	fi
 	if flag push; then
 		echo "- '$DEVELOP_BRANCH', '$MASTER_BRANCH' and tags have been pushed to '$ORIGIN'"
+		echo "- Release branch '$BRANCH' in '$ORIGIN' has been deleted."
 	fi
+	echo
+}
+
+cmd_publish() {
+	parse_args "$@"
+	require_version_arg
+
+	# sanity checks
+	require_clean_working_tree
+	require_branch "$BRANCH"
+	git fetch -q "$ORIGIN"
+	require_branch_absent "$ORIGIN/$BRANCH"
+
+	# create remote branch
+	git push "$ORIGIN" "$BRANCH:refs/heads/$BRANCH"
+	git fetch -q "$ORIGIN"
+
+	# configure remote tracking
+	git config "branch.$BRANCH.remote" "$ORIGIN"
+	git config "branch.$BRANCH.merge" "refs/heads/$BRANCH"
+	git checkout "$BRANCH"
+
+	echo
+	echo "Summary of actions:"
+	echo "- A new remote branch '$BRANCH' was created"
+	echo "- The local branch '$BRANCH' was configured to track the remote branch"
+	echo "- You are now on branch '$BRANCH'"
+	echo
+}
+
+cmd_track() {
+	parse_args "$@"
+	require_version_arg
+
+	# sanity checks
+	require_clean_working_tree
+	require_branch_absent "$BRANCH"
+	git fetch -q "$ORIGIN"
+	require_branch "$ORIGIN/$BRANCH"
+
+	# create tracking branch
+	git checkout -b "$BRANCH" "$ORIGIN/$BRANCH"
+
+	echo
+	echo "Summary of actions:"
+	echo "- A new remote tracking branch '$BRANCH' was created"
+	echo "- You are now on branch '$BRANCH'"
 	echo
 }

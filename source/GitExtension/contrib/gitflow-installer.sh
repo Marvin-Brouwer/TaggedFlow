@@ -1,10 +1,10 @@
 #!/bin/sh
 
-# git-flow make-less installer for *nix systems, by Rick Osborne
-# Based on the git-flow core Makefile:
+# git-tagflow make-less installer for *nix systems, by Rick Osborne
+# Based on the git-tagflow core Makefile:
 # http://github.com/nvie/gitflow/blob/master/Makefile
 
-# Licensed under the same restrictions as git-flow:
+# Licensed under the same restrictions as git-tagflow:
 # http://github.com/nvie/gitflow/blob/develop/LICENSE
 
 # Does this need to be smarter for each host OS?
@@ -20,15 +20,15 @@ if [ -z "$REPO_HOME" ] ; then
 	REPO_HOME="http://github.com/nvie/gitflow.git"
 fi
 
-EXEC_FILES="git-flow"
-SCRIPT_FILES="git-flow-init git-flow-feature git-flow-hotfix git-flow-release git-flow-support git-flow-version gitflow-common gitflow-shFlags"
-SUBMODULE_FILE="gitflow-shFlags"
+EXEC_FILES="git-tagflow"
+SCRIPT_FILES="git-tagflow-init git-tagflow-feature git-tagflow-hotfix git-tagflow-release git-tagflow-support git-tagflow-version git-tagflowcommon git-tagflow-shFlags"
+SUBMODULE_FILE="git-tagflow-shFlags"
 
 echo "### gitflow no-make installer ###"
 
 case "$1" in
 	uninstall)
-		echo "Uninstalling git-flow from $INSTALL_PREFIX"
+		echo "Uninstalling git-tagflow from $INSTALL_PREFIX"
 		if [ -d "$INSTALL_PREFIX" ] ; then
 			for script_file in $SCRIPT_FILES $EXEC_FILES ; do
 				echo "rm -vf $INSTALL_PREFIX/$script_file"
@@ -41,7 +41,7 @@ case "$1" in
 		exit
 		;;
 	help)
-		echo "Usage: [environment] gitflow-installer.sh [install|uninstall]"
+		echo "Usage: [environment] git-tagflowinstaller.sh [install|uninstall]"
 		echo "Environment:"
 		echo "   INSTALL_PREFIX=$INSTALL_PREFIX"
 		echo "   REPO_HOME=$REPO_HOME"
@@ -49,7 +49,7 @@ case "$1" in
 		exit
 		;;
 	*)
-		echo "Installing git-flow to $INSTALL_PREFIX"
+		echo "Installing git-tagflow to $INSTALL_PREFIX"
 		if [[ -d "$REPO_NAME" && -d "$REPO_NAME/.git" ]] ; then
 			echo "Using existing repo: $REPO_NAME"
 		else

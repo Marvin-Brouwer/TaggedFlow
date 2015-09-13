@@ -1,5 +1,5 @@
 #
-# git-flow -- A collection of Git extensions to provide high-level
+# git-tagflow -- A collection of Git extensions to provide high-level
 # repository operations for Vincent Driessen's branching model.
 #
 # Original blog post presenting this model is found at:
@@ -237,7 +237,7 @@ gitflow_resolve_nameprefix() {
 }
 
 #
-# Assertions for use in git-flow subcommands
+# Assertions for use in git-tagflow subcommands
 #
 
 require_git_repo() {
@@ -248,7 +248,7 @@ require_git_repo() {
 
 require_gitflow_initialized() {
 	if ! gitflow_is_initialized; then
-		die "fatal: Not a gitflow-enabled repo yet. Please run \"git flow init\" first."
+		die "fatal: Not a git-tagflowenabled repo yet. Please run \"git flow init\" first."
 	fi
 }
 

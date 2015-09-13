@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# git-flow -- A collection of Git extensions to provide high-level
+# git-tagflow -- A collection of Git extensions to provide high-level
 # repository operations for Vincent Driessen's branching model.
 #
 # Original blog post presenting this model is found at:
@@ -65,15 +65,15 @@ main() {
 	fi
 
 	# load common functionality
-	. "$GITFLOW_DIR/gitflow-common"
+	. "$GITFLOW_DIR/git-tagflow-common"
 
 	# This environmental variable fixes non-POSIX getopt style argument
-	# parsing, effectively breaking git-flow subcommand parsing on several
+	# parsing, effectively breaking git-tagflow subcommand parsing on several
 	# Linux platforms.
 	export POSIXLY_CORRECT=1
 
 	# use the shFlags project to parse the command line arguments
-	. "$GITFLOW_DIR/gitflow-shFlags"
+	. "$GITFLOW_DIR/git-tagflow-shFlags"
 	FLAGS_PARENT="git flow"
 	FLAGS "$@" || exit $?
 	eval set -- "${FLAGS_ARGV}"
@@ -81,13 +81,13 @@ main() {
 	# sanity checks
 	SUBCOMMAND="$1"; shift
 
-	if [ ! -e "$GITFLOW_DIR/git-flow-$SUBCOMMAND" ]; then
+	if [ ! -e "$GITFLOW_DIR/git-tagflow-$SUBCOMMAND" ]; then
 		usage
 		exit 1
 	fi
 
 	# run command
-	. "$GITFLOW_DIR/git-flow-$SUBCOMMAND"
+	. "$GITFLOW_DIR/git-tagflow-$SUBCOMMAND"
 	FLAGS_PARENT="git flow $SUBCOMMAND"
 
 	# test if the first argument is a flag (i.e. starts with '-')
