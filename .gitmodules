@@ -1,0 +1,4 @@
+[submodule "source/GitExtension/shFlags"]
+	path = source/GitExtension/shFlags
+	url = https://github.com/nvie/shFlags.git
+	branch = master
