@@ -157,25 +157,23 @@ gitflow_has_master_configured() {
 	local master=$(git config --get gitflow.branch.master)
 	[ "$master" != "" ] && git_local_branch_exists "$master"
 }
-
-gitflow_has_develop_configured() {
-	local develop=$(git config --get gitflow.branch.develop)
-	[ "$develop" != "" ] && git_local_branch_exists "$develop"
+# todo: find out what to do with this
+gitflow_has_release_configured() {
+	local develop=$(git config --get gitflow.branch.release)
+	[ "$release" != "" ] && git_local_branch_exists "$release"
 }
 
 gitflow_has_prefixes_configured() {
 	git config --get gitflow.prefix.feature >/dev/null 2>&1     && \
 	git config --get gitflow.prefix.release >/dev/null 2>&1     && \
-	git config --get gitflow.prefix.hotfix >/dev/null 2>&1      && \
-	git config --get gitflow.prefix.support >/dev/null 2>&1     && \
 	git config --get gitflow.prefix.versiontag >/dev/null 2>&1
 }
 
 gitflow_is_initialized() {
 	gitflow_has_master_configured                    && \
-	gitflow_has_develop_configured                   && \
+	gitflow_has_release_configured                   && \
 	[ "$(git config --get gitflow.branch.master)" !=    \
-	  "$(git config --get gitflow.branch.develop)" ] && \
+	  "$(git config --get gitflow.branch.release)" ] && \
 	gitflow_has_prefixes_configured
 }
 
@@ -183,7 +181,7 @@ gitflow_is_initialized() {
 gitflow_load_settings() {
 	export DOT_GIT_DIR=$(git rev-parse --git-dir >/dev/null 2>&1)
 	export MASTER_BRANCH=$(git config --get gitflow.branch.master)
-	export DEVELOP_BRANCH=$(git config --get gitflow.branch.develop)
+	export RELEASE_BRANCH=$(git config --get gitflow.branch.release)
 	export ORIGIN=$(git config --get gitflow.origin || echo origin)
 }
 
