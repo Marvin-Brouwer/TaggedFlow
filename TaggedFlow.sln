@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitExtension", "GitExtension", "{EF773C2C-F305-4040-B068-038556072FB2}"
+	ProjectSection(SolutionItems) = preProject
+		source\GitExtension\.gitmodules = source\GitExtension\.gitmodules
+		source\GitExtension\AUTHORS = source\GitExtension\AUTHORS
+		source\GitExtension\bump-version = source\GitExtension\bump-version
+		source\GitExtension\Changes.mdown = source\GitExtension\Changes.mdown
+		source\GitExtension\git-tagflow = source\GitExtension\git-tagflow
+		source\GitExtension\git-tagflow-common = source\GitExtension\git-tagflow-common
+		source\GitExtension\git-tagflow-feature = source\GitExtension\git-tagflow-feature
+		source\GitExtension\git-tagflow-hotfix = source\GitExtension\git-tagflow-hotfix
+		source\GitExtension\git-tagflow-init = source\GitExtension\git-tagflow-init
+		source\GitExtension\git-tagflow-release = source\GitExtension\git-tagflow-release
+		source\GitExtension\git-tagflow-shFlags = source\GitExtension\git-tagflow-shFlags
+		source\GitExtension\git-tagflow-support = source\GitExtension\git-tagflow-support
+		source\GitExtension\git-tagflow-version = source\GitExtension\git-tagflow-version
+		source\GitExtension\LICENSE = source\GitExtension\LICENSE
+		source\GitExtension\Makefile = source\GitExtension\Makefile
+		source\GitExtension\README.mdown = source\GitExtension\README.mdown
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
